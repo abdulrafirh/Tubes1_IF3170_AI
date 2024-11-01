@@ -25,7 +25,7 @@ class DynamicNineCube(Scene):
 
             new_counter_text = Text(f"State {next_state_index}", font_size=36, color=WHITE)
             new_counter_text.to_edge(UP)
-            self.play(Transform(counter_text, new_counter_text),run_time=0.05)
+            self.play(Transform(counter_text, new_counter_text),run_time=0.08)
 
             for x in range(9):
                 for y in range(3):
@@ -41,7 +41,7 @@ class DynamicNineCube(Scene):
                         cube_to_change.add(new_number)
                         self.play(FadeIn(new_number, run_time=0.1))
 
-                        self.play(cube_to_change[0].animate.set_fill(original_color, opacity=0.2))
+                        self.play(cube_to_change[0].animate.set_fill(original_color, opacity=0.2),run_time=0.08)
 
 
             current_state_index = next_state_index
