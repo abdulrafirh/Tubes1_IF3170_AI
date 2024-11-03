@@ -118,7 +118,7 @@ class CubeVisualizer:
                         mode='text',
                         text=[str(self.cube_data[i, j, k])],
                         textposition="middle center",
-                        textfont=dict(size=18, color="black")  # Increased text size to 18px
+                        textfont=dict(size=18, color="black")  
                     ))
 
         return traces
@@ -126,7 +126,7 @@ class CubeVisualizer:
     def setup_figure(self):
         self.fig = go.Figure(data=self.create_cube_traces())
         
-        # Create slider specifications
+        # SLider buat animasi
         sliders = [{
             'active': 0,
             'yanchor': 'top',
@@ -145,12 +145,12 @@ class CubeVisualizer:
             'steps': []
         }]
 
-        # Create play button specifications - now positioned above slider
+        # Tombol play pause
         updatemenus = [{
             'type': 'buttons',
             'showactive': False,
             'x': 0.1,
-            'y': 0.05,  # Positioned just above slider
+            'y': 0.05,  
             'xanchor': 'left',
             'yanchor': 'top',
             'buttons': [
@@ -195,7 +195,7 @@ class CubeVisualizer:
             plot_bgcolor='rgba(0,0,0,0)',
             sliders=sliders,
             updatemenus=updatemenus,
-            margin=dict(l=0, r=0, t=100, b=0)  # Adjusted margins for better layout
+            margin=dict(l=0, r=0, t=100, b=0)  # Margin
         )
 
     def swap_values(self, coord1, coord2):
@@ -244,10 +244,10 @@ class CubeVisualizer:
                 'method': 'animate'
             })
             
-            # Perform the swap
+            # swap
             self.swap_values(coord1, coord2)
             
-            # Frame showing result after swap
+            # hasil frame abis swap
             frames.append(go.Frame(
                 data=self.create_cube_traces(),
                 name=f"state_{idx*2}",
