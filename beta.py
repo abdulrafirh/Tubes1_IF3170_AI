@@ -1,5 +1,6 @@
 import numpy as np
 import plotly.graph_objects as go
+from plotly.offline import plot
 from collections import defaultdict
 import algorithm
 
@@ -294,17 +295,48 @@ def main(states_file):
     print(f"Loading states from {states_file}...")
     cube_states = loadStatesFromFile(states_file)
     print(f"Successfully loaded {len(cube_states)} states")
-    
-    # Create visualizer and display
+
     visualizer = CubeVisualizer(cube_states)
     visualizer.fig.show()
+
+    objective_value = [int(1000 * np.random.random()) for i in range(100)]
+
+    line_fig1 = go.Figure()
+    line_fig1.add_trace(go.Scatter(x=list(range(len(objective_value))), y=objective_value, mode='lines+markers', name='Objective Value'))
+    line_fig1.update_layout(title='Objective Value with respect to Iteration Number',
+                            xaxis_title='Iteration Number',
+                            yaxis_title='Objective Value')
+
+    # Display the line plot in a new tab
+    plot(line_fig1, filename='objective_value_plot.html', auto_open=True)
 
 def mainDihitungDulu(algo, argv = {}):
     result = algorithm.run_algorithm(algo, argv)
     cube_states = resultToStates(result)
     print(len(cube_states))
+    objective_value = result["h_values"]
+    print(len(objective_value))
     visualizer = CubeVisualizer(cube_states)
     visualizer.fig.show()
+
+    line_fig1 = go.Figure()
+    line_fig1.add_trace(go.Scatter(x=list(range(len(objective_value))), y=objective_value, mode='lines+markers', name='Objective Value'))
+    line_fig1.update_layout(title='Objective Value with respect to Iteration Number',
+                            xaxis_title='Iteration Number',
+                            yaxis_title='Objective Value')
+
+    plot(line_fig1, filename='objective_value_plot.html', auto_open=True)
+
+    if algo == "simulated annealing":
+        edeltaT = result["boltzmanns"]
+
+        line_fig2 = go.Figure()
+        line_fig2.add_trace(go.Scatter(x=list(range(len(edeltaT))), y=edeltaT, mode='lines+markers', name='e^delta(E)/T Value'))
+        line_fig2.update_layout(title='e^delta(E)/T Value with respect to Iteration Number',
+                                xaxis_title='Iteration Number',
+                                yaxis_title='e^delta(E)/T Value')
+
+        plot(line_fig2, filename='edeltaT_value_plot.html', auto_open=True)
 
 if __name__ == "__main__":
     mainDihitungDulu("simulated annealing")
