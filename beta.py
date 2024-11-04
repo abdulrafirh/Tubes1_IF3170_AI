@@ -314,21 +314,21 @@ def mainDihitungDulu(algo, argv = {}):
     result = algorithm.run_algorithm(algo, argv)
     cube_states = resultToStates(result)
     print(len(cube_states))
+    objective_value = result["h_values"]
+    print(len(objective_value))
     visualizer = CubeVisualizer(cube_states)
     visualizer.fig.show()
 
-# if __name__ == "__main__":
-#     state_file = "cube_data.txt"
-#     main(state_file)
+    line_fig1 = go.Figure()
+    line_fig1.add_trace(go.Scatter(x=list(range(len(objective_value))), y=objective_value, mode='lines+markers', name='Objective Value'))
+    line_fig1.update_layout(title='Objective Value with respect to Iteration Number',
+                            xaxis_title='Iteration Number',
+                            yaxis_title='Objective Value')
 
-def mainDihitungDulu(algo, argv = {}):
-    result = algorithm.run_algorithm(algo, argv)
-    cube_states = resultToStates(result)
-    visualizer = CubeVisualizer(cube_states)
-    visualizer.fig.show()
+    plot(line_fig1, filename='objective_value_plot.html', auto_open=True)
 
     if algo == "simulated annealing":
-        edeltaT = [int(1000 * np.random.random()) for i in range(100)]
+        edeltaT = result["boltzmanns"]
 
         line_fig2 = go.Figure()
         line_fig2.add_trace(go.Scatter(x=list(range(len(edeltaT))), y=edeltaT, mode='lines+markers', name='e^delta(E)/T Value'))
@@ -336,7 +336,6 @@ def mainDihitungDulu(algo, argv = {}):
                                 xaxis_title='Iteration Number',
                                 yaxis_title='e^delta(E)/T Value')
 
-        # Display the line plot in a new tab
         plot(line_fig2, filename='edeltaT_value_plot.html', auto_open=True)
 
 if __name__ == "__main__":

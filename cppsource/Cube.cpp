@@ -394,7 +394,7 @@ public:
     }
 
     double getTemperature(int iteration) const {
-        return 800 * std::pow(iteration, -0.5) - 4;
+        return 200 * std::pow(iteration, -0.5) - 8;
     }
 
     double getProbability(double deltaE, double temp) const {
@@ -419,6 +419,8 @@ public:
         double temperature = getTemperature(iteration);
 
         std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+        h_values.push_back(getH());
 
         while (temperature > 0) {
             int x1, y1, z1, x2, y2, z2;
@@ -456,6 +458,8 @@ public:
 
             iteration++;
             temperature = getTemperature(iteration);
+
+            h_values.push_back(getH());
         }
 
         return result;
