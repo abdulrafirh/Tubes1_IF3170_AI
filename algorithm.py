@@ -236,10 +236,10 @@ class GeneticCube:
       return mutated
   
   def pop_max(self):
-    return max(self.population, key=lambda x: x.getH())
+    return max(self.population, key=lambda x: x.controlH())
   
-  def avg_by_getH(self):
-    return sum(x.getH() for x in self.population) / len(self.population)
+  def pop_h_avg(self):
+    return sum(x.controlH() for x in self.population) / len(self.population)
 
   def geneticAlgorithm(self, iterationCount = 1000) :
     self.initPopulation()
@@ -248,7 +248,18 @@ class GeneticCube:
     results["avg_h"] = []
     results["max_cubes"] = [] 
 
+    max_cube = self.pop_max()
+    results["max_cubes"].append(max_cube)
+    results["max_h"].append(max_cube.controlH())
+    results["avg_h"].append(self.pop_h_avg())
+
     for i in range(iterationCount) :
+
+      max_cube = self.pop_max()
+      results["max_cubes"].append(max_cube)
+      results["max_h"].append(max_cube.controlH())
+      results["avg_h"].append(self.pop_h_avg())
+
       fitnesses = self.getFitnesses()
       buckets = self.getBucketsFromFitnesses(fitnesses)
 

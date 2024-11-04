@@ -1,23 +1,56 @@
-from algorithm import *
+import algorithm
 from beta import *
+from plotly.offline import plot
+
+def resultToStates(config) :
+    currState = np.array(config["initial_state"])
+    states = [currState.copy()]
+
+    for [coord1, coord2] in config["switches"]:
+        currState[coord1[1], coord1[2], coord1[0]], currState[coord2[1], coord2[2], coord2[0]] = \
+            currState[coord2[1], coord2[2], coord2[0]], currState[coord1[1], coord1[2], coord1[0]]
+        
+        states.append(currState.copy())
+    
+    return states
 
 def mainDihitungDulu(algo, argv = {}):
 
     result = algorithm.run_algorithm(algo, argv)
     genericPrinter(result)
 
-    cube_states = resultToStates(result)
-    objective_value = result["h_values"]
+    if algo != 'genetic algorithm' :
+        cube_states = resultToStates(result)
+    else :
+        cube_states = np.array(result["max_cubes"])
+        
     visualizer = CubeVisualizer(cube_states)
     visualizer.fig.show()
 
-    line_fig1 = go.Figure()
-    line_fig1.add_trace(go.Scatter(x=list(range(len(objective_value))), y=objective_value, mode='lines+markers', name='Objective Value'))
-    line_fig1.update_layout(title='Objective Value with respect to Iteration Number',
-                            xaxis_title='Iteration Number',
-                            yaxis_title='Objective Value')
+    if algo != "genetic algorithm" :
+        objective_value = result["h_values"]
+        line_fig1 = go.Figure()
+        line_fig1.add_trace(go.Scatter(x=list(range(len(objective_value))), y=objective_value, mode='lines+markers', name='Objective Value'))
+        line_fig1.update_layout(title='Objective Value with respect to Iteration Number',
+                                xaxis_title='Iteration Number',
+                                yaxis_title='Objective Value')
 
-    plot(line_fig1, filename='objective_value_plot.html', auto_open=True)
+        plot(line_fig1, filename='objective_value_plot.html', auto_open=True)
+    else :
+        max_objective_value = result["max_h"]
+        avg_objective_value = result["avg_h"]
+        line_fig1 = go.Figure()
+
+        line_fig1.add_trace(go.Scatter(x=list(range(len(max_objective_value))), y=max_objective_value, mode='lines+markers', name='Max Objective Value'), secondary_y=False,)
+
+        line_fig1.add_trace(go.Scatter(x=list(range(len(avg_objective_value))), y=avg_objective_value, mode='lines+markers', name='Avg Objective Value'), secondary_y=True,
+        )
+       
+        line_fig1.update_layout(title='Objective Value with respect to Iteration Number',
+                                xaxis_title='Iteration Number',
+                                yaxis_title='Objective Value')
+
+        plot(line_fig1, filename='objective_value_plot.html', auto_open=True)
 
     if algo == "simulated annealing":
         edeltaT = result["boltzmanns"]
@@ -87,4 +120,4 @@ while True:
     print("5. Simulated Annealing")
     print("6. Genetic Algorithm")
     print("7. Die")
-    alg = int(input("=> "))
+    alg = int(input("=> ")) 

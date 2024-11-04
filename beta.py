@@ -1,27 +1,22 @@
 import numpy as np
 import plotly.graph_objects as go
-from plotly.offline import plot
 from collections import defaultdict
-import algorithm
 
 def loadStatesFromFile(filename):
-    """
-    Load multiple states from a file where states are separated by commas
-    Returns a list of numpy arrays, each representing a 5x5x5 cube state
-    """
+
     with open(filename, 'r') as file:
         content = file.read()
-        # Split states by comma and clean up whitespace
+        # Split dari koma
         states = content.split(',')
         cube_states = []
         
         for state in states:
-            # Convert state string to array of numbers
+            # konvert jadi array of array of araray
             try:
                 numbers = [int(num) for num in state.strip().split()]
                 if len(numbers) != 125:
                     raise ValueError(f"Each state must contain exactly 125 numbers. Found {len(numbers)} numbers.")
-                # Reshape into 5x5x5 cube
+                # 
                 cube_states.append(np.array(numbers).reshape((5, 5, 5)))
             except ValueError as e:
                 print(f"Error processing state: {e}")
@@ -37,15 +32,15 @@ def findMagicCoordinates(cube_data):
 
     for i in range(5):
         for j in range(5):
-            # Checking along Z-axis
+            # Sumbu Z
             if isMagicSum(cube_data[i, j, :]):
                 for k in range(5):
                     magic_coords[(i, j, k)] += 1
-            # Checking along Y-axis
+            # Sumbu Y
             if isMagicSum(cube_data[i, :, j]):
                 for k in range(5):
                     magic_coords[(i, k, j)] += 1
-            # Checking along X-axis
+            # Sumbu X
             if isMagicSum(cube_data[:, i, j]):
                 for k in range(5):
                     magic_coords[(k, i, j)] += 1
@@ -74,7 +69,6 @@ def findMagicCoordinates(cube_data):
             for k in range(5):
                 magic_coords[(k, 4 - k, i)] += 1
 
-    # Space diagonals
     if isMagicSum(cube_data[range(5), range(5), range(5)]):
         for k in range(5):
             magic_coords[(k, k, k)] += 1
@@ -107,9 +101,6 @@ class CubeVisualizer:
         self.setup_figure()
 
     def find_different_cells(self, state1, state2):
-        """
-        Menemukan koordinat sel yang berbeda antara dua state
-        """
         different_coords = []
         for i in range(5):
             for j in range(5):
@@ -130,7 +121,7 @@ class CubeVisualizer:
                     y_pos = j * (self.explosion_factor + self.gap)
                     z_pos = k * (self.explosion_factor + self.gap)
                     
-                    # Tentukan warna: kuning jika di-highlight, sesuai magic lines jika tidak
+                    # Tentukan warna: kuning jika di-highlight, sesuai jumlah magic lines jika tidak
                     if highlight_coords and (i,j,k) in highlight_coords:
                         color = 'yellow'
                     else:
@@ -161,13 +152,13 @@ class CubeVisualizer:
 
         return traces
 
-    def setup_figure(self):
+    def setup_figure(self): 
         self.fig = go.Figure(data=self.create_cube_traces())
         
-        # Buat frames untuk semua state
+        # Bikin frame
         frames = []
         for i in range(len(self.states)):
-            # Frame normal untuk state saat ini
+            # 
             self.current_state_idx = i
             frame = go.Frame(
                 data=self.create_cube_traces(),
@@ -175,23 +166,23 @@ class CubeVisualizer:
                 traces=[i for i in range(250)]
             )
             frames.append(frame)
-            
-            # Jika bukan state terakhir, tambahkan frame transisi dengan highlight
+
+            # Nambah frame transisi
             if i < len(self.states) - 1:
-                different_coords = self.find_different_cells(self.states[i], self.states[i+1])
+                different_coords = self.find_different_cells(self.states[i], self.states[i + 1])
                 
-                # Frame dengan highlight kuning
+                # Frame pakek yellow highlight
                 highlight_frame = go.Frame(
                     data=self.create_cube_traces(highlight_coords=different_coords),
                     name=f"state_{i}_highlight",
                     traces=[i for i in range(250)]
                 )
                 frames.append(highlight_frame)
-        
-        # Reset current state
+
+        # Reset state
         self.current_state_idx = 0
-        
-        # Setup slider dengan frame tambahan untuk highlight
+
+        # Slider
         steps = []
         for i in range(len(frames)):
             step = {
@@ -200,7 +191,7 @@ class CubeVisualizer:
                     'mode': 'immediate',
                     'transition': {'duration': 0}
                 }],
-                'label': f"{i//2 + 1}" if i % 2 == 0 else f"{i//2 + 1}h",
+                'label': f"{i // 2 + 1}" if i % 2 == 0 else f"{i // 2 + 1}h",
                 'method': 'animate'
             }
             steps.append(step)
@@ -222,8 +213,10 @@ class CubeVisualizer:
             'y': 0,
             'steps': steps
         }]
-        
-        # Setup play/pause dengan durasi yang sesuai untuk transisi
+
+        playback_speeds = [1, 2, 3, 5, 10,100]
+        playback_speed_idx = 0
+
         updatemenus = [{
             'type': 'buttons',
             'showactive': False,
@@ -233,15 +226,16 @@ class CubeVisualizer:
             'yanchor': 'top',
             'buttons': [
                 {
-                    'label': '▶️ Play',
+                    'label': f'▶️ {playback_speeds[speed_idx]}x',
                     'method': 'animate',
                     'args': [None, {
-                        'frame': {'duration': 1000, 'redraw': True},  # Durasi lebih lama untuk melihat highlight
+                        'frame': {'duration': 1000 / playback_speeds[speed_idx], 'redraw': True},
                         'fromcurrent': True,
                         'transition': {'duration': 300},
                         'mode': 'immediate',
                     }]
-                },
+                } for speed_idx in range(len(playback_speeds))
+            ] + [
                 {
                     'label': '⏸️ Pause',
                     'method': 'animate',
@@ -251,7 +245,10 @@ class CubeVisualizer:
                         'transition': {'duration': 0}
                     }]
                 }
-            ]
+            ],
+            'direction': 'right', 
+            'pad': {'r': 10, 't': 10},  
+            'active': playback_speed_idx  
         }]
 
         self.fig.update_layout(
@@ -277,66 +274,15 @@ class CubeVisualizer:
         )
         
         self.fig.frames = frames
-
-def resultToStates(config) :
-    currState = np.array(config["initial_state"])
-    states = [currState.copy()]
-
-    for [coord1, coord2] in config["switches"]:
-        currState[coord1[1], coord1[2], coord1[0]], currState[coord2[1], coord2[2], coord2[0]] = \
-            currState[coord2[1], coord2[2], coord2[0]], currState[coord1[1], coord1[2], coord1[0]]
         
-        states.append(currState.copy())
-    
-    return states
-
 def main(states_file):
-    # Load states from file
     print(f"Loading states from {states_file}...")
     cube_states = loadStatesFromFile(states_file)
     print(f"Successfully loaded {len(cube_states)} states")
-
+    
     visualizer = CubeVisualizer(cube_states)
     visualizer.fig.show()
-
-    objective_value = [int(1000 * np.random.random()) for i in range(100)]
-
-    line_fig1 = go.Figure()
-    line_fig1.add_trace(go.Scatter(x=list(range(len(objective_value))), y=objective_value, mode='lines+markers', name='Objective Value'))
-    line_fig1.update_layout(title='Objective Value with respect to Iteration Number',
-                            xaxis_title='Iteration Number',
-                            yaxis_title='Objective Value')
-
-    # Display the line plot in a new tab
-    plot(line_fig1, filename='objective_value_plot.html', auto_open=True)
-
-def mainDihitungDulu(algo, argv = {}):
-    result = algorithm.run_algorithm(algo, argv)
-    cube_states = resultToStates(result)
-    print(len(cube_states))
-    objective_value = result["h_values"]
-    print(len(objective_value))
-    visualizer = CubeVisualizer(cube_states)
-    visualizer.fig.show()
-
-    line_fig1 = go.Figure()
-    line_fig1.add_trace(go.Scatter(x=list(range(len(objective_value))), y=objective_value, mode='lines+markers', name='Objective Value'))
-    line_fig1.update_layout(title='Objective Value with respect to Iteration Number',
-                            xaxis_title='Iteration Number',
-                            yaxis_title='Objective Value')
-
-    plot(line_fig1, filename='objective_value_plot.html', auto_open=True)
-
-    if algo == "simulated annealing":
-        edeltaT = result["boltzmanns"]
-
-        line_fig2 = go.Figure()
-        line_fig2.add_trace(go.Scatter(x=list(range(len(edeltaT))), y=edeltaT, mode='lines+markers', name='e^delta(E)/T Value'))
-        line_fig2.update_layout(title='e^delta(E)/T Value with respect to Iteration Number',
-                                xaxis_title='Iteration Number',
-                                yaxis_title='e^delta(E)/T Value')
-
-        plot(line_fig2, filename='edeltaT_value_plot.html', auto_open=True)
 
 if __name__ == "__main__":
-    mainDihitungDulu("simulated annealing")
+    state_file = "cube_data.txt"  # Nama state
+    main(state_file)
