@@ -25,8 +25,8 @@ def mainDihitungDulu(algo, argv = {}):
     else :
         cube_states = np.array(result["max_cubes"])
         
-    # visualizer = CubeVisualizer(cube_states)
-    # visualizer.fig.show()
+    visualizer = CubeVisualizer(cube_states)
+    visualizer.fig.show()
 
     if algo != "genetic algorithm" :
         objective_value = result["h_values"]
