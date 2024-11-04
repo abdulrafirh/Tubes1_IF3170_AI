@@ -12,7 +12,7 @@
 
 ## How To Run
 
-1. Make sure your current working directory in ./Tubes1_IF3170_AI
+1. Make sure your current working directory in ./src
 
 2. Build the Cube.cpp to binary file
 
