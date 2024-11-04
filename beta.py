@@ -1,6 +1,7 @@
 import numpy as np
 import plotly.graph_objects as go
 from collections import defaultdict
+import algorithm
 
 def loadStatesFromFile(filename):
     """
@@ -276,6 +277,18 @@ class CubeVisualizer:
         
         self.fig.frames = frames
 
+def resultToStates(config) :
+    currState = np.array(config["initial_state"])
+    states = [currState.copy()]
+
+    for [coord1, coord2] in config["switches"]:
+        currState[coord1[1], coord1[2], coord1[0]], currState[coord2[1], coord2[2], coord2[0]] = \
+            currState[coord2[1], coord2[2], coord2[0]], currState[coord1[1], coord1[2], coord1[0]]
+        
+        states.append(currState.copy())
+    
+    return states
+
 def main(states_file):
     # Load states from file
     print(f"Loading states from {states_file}...")
@@ -286,6 +299,12 @@ def main(states_file):
     visualizer = CubeVisualizer(cube_states)
     visualizer.fig.show()
 
+def mainDihitungDulu(algo, argv = {}):
+    result = algorithm.run_algorithm(algo, argv)
+    cube_states = resultToStates(result)
+    print(len(cube_states))
+    visualizer = CubeVisualizer(cube_states)
+    visualizer.fig.show()
+
 if __name__ == "__main__":
-    state_file = "cube_data.txt"  # Your states file
-    main(state_file)
+    mainDihitungDulu("simulated annealing")
