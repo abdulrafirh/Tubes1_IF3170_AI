@@ -169,10 +169,12 @@ class Cube:
     result = {}
     result["initial_state"] = self.copyCube().cube
     result["switches"] = []
+    result["h_values"] = []
 
     done = False
     while not done :
       currentH = self.getH()
+      result["h_values"].append(currentH)
       pair, newH = self.findSteepestAscent()
     
       if (newH > currentH) :
@@ -184,18 +186,21 @@ class Cube:
         result["switches"] += [pair]
       else :
         done = True
+
+    result["h_values"].append(self.getH())
     return result
 
-  def sidewayAscentHillClimb(self) :
+  def sidewayAscentHillClimb(self, limit = 100) :
     self.initialize()
     result = {}
     result["initial_state"] = self.copyCube().cube
     result["switches"] = []
+    result["h_values"] = []
     done = False
-    limit = 100
     currentStreak = 0
     while not done :
       currentH = self.getH()
+      result["h_values"].append(currentH)
       pair, newH = self.findSteepestAscent()
     
       if (newH > currentH or (newH == currentH and currentStreak < limit)) :
@@ -212,20 +217,25 @@ class Cube:
           currentStreak += 1
       else :
         done = True
-      return result
 
-  def randomRestartHillClimb(self) :
-    max_restart = 10
+    result["h_values"].append(self.getH())
+    return result
+
+  def randomRestartHillClimb(self, max_restart = 10) :
     result = {}
     iteration = 1
+    result["iteration_per_restarts"] = []
 
     maxH = 0
     while self.getH() != 109 and iteration < max_restart :
       currResult = self.steepestAscentHillClimb()
+      result["iteration_per_restarts"].append(len(currResult["h_values"]))
       if (self.getH() > maxH) :
         result = currResult
         maxH = self.getH()
       iteration += 1
+
+    result["restart_counts"] = iteration
     return result
 
   def stochasticHillClimb(self) :
@@ -233,6 +243,7 @@ class Cube:
     result = {}
     result["initial_state"] = self.copyCube().cube
     result["switches"] = []
+    result["h_values"] = []
 
     nmax = 100000
 
@@ -266,6 +277,8 @@ class Cube:
     result = {}
     result["initial_state"] = self.copyCube().cube
     result["switches"] = []
+    result["boltzmanns"] = []
+    result["stucks"] = 0
 
     iteration = 1
     temperature = self.getTemperature(iteration)
@@ -282,13 +295,18 @@ class Cube:
 
       newH = self.getH()
 
-      roll = random.random()
-      probability = self.getProbability(newH - currentH, temperature)
-
-      if (roll > probability) :
-        self.cube[z1][y1][x1], self.cube[z2][y2][x2] = self.cube[z2][y2][x2], self.cube[z1][y1][x1]
+      if (newH >= currentH) :
+        result["boltzmanns"].append(1)
       else :
-        result["switches"] += [((x1, y1, z1), (x2, y2, z2))]
+        roll = random.random()
+        probability = self.getProbability(newH - currentH, temperature)
+        result["boltzmanns"].append(probability)
+        result["stucks"] += 1
+
+        if (roll > probability) :
+          self.cube[z1][y1][x1], self.cube[z2][y2][x2] = self.cube[z2][y2][x2], self.cube[z1][y1][x1]
+        else :
+          result["switches"] += [((x1, y1, z1), (x2, y2, z2))]
 
       iteration += 1
       temperature = self.getTemperature(iteration)
@@ -298,7 +316,7 @@ class Cube:
 
 class GeneticCube:
 
-  def  __init__(self, dimension, popSize) :
+  def  __init__(self, dimension, popSize = 8) :
     self.dimension = dimension
     self.popSize = popSize
     self.population = [Cube(dimension) for i in range(popSize)]
@@ -374,14 +392,14 @@ class GeneticCube:
               counts[number] -= 1
       return mutated
 
-  def geneticAlgorithm(self) :
+  def geneticAlgorithm(self, iterationCount = 1000) :
     self.initPopulation()
     results = {}
     results["populations"] = []
     results["selected_parent"] = []
     results["mutations"] = []
 
-    for i in range(1000) :
+    for i in range(iterationCount) :
       results["populations"].append(list(map(lambda x: x.cube, self.population)))
       fitnesses = self.getFitnesses()
       buckets = self.getBucketsFromFitnesses(fitnesses)
@@ -406,7 +424,7 @@ class GeneticCube:
     results["final H"] = best_cube.getH()
     return results
   
-def run_algorithm(algorithm) :
+def run_algorithm(algorithm, argv) :
   cube = Cube(5)
   
   start_time = time.time()
@@ -414,12 +432,14 @@ def run_algorithm(algorithm) :
     result = cube.steepestAscentHillClimb()
     result["duration"] = time.time() - start_time
     result["final H"] = cube.getH()
+    result["final_state"] = cube.cube
   elif (algorithm == "sideways ascent") :
-    result = cube.sidewayAscentHillClimb()
+    result = cube.sidewayAscentHillClimb(argv['limit'] or 100)
     result["duration"] = time.time() - start_time
     result["final H"] = cube.getH()
+    result["final_state"] = cube.cube
   elif (algorithm == "random restart") :
-    result = cube.randomRestartHillClimb()
+    result = cube.randomRestartHillClimb(argv["max_restart"] or 10)
     result["duration"] = time.time() - start_time
     result["final H"] = cube.getH()
   elif (algorithm == "stochastic") :
@@ -431,8 +451,8 @@ def run_algorithm(algorithm) :
     result["duration"] = time.time() - start_time
     result["final H"] = cube.getH()
   elif (algorithm == "genetic algorithm") :
-    geneticAgent = GeneticCube(5, 8)
-    result = geneticAgent.geneticAlgorithm()
+    geneticAgent = GeneticCube(5, argv["popSize"] or 8)
+    result = geneticAgent.geneticAlgorithm(argv["max_iteration"] or 1000)
     result["duration"] = time.time() - start_time
   return result
 
