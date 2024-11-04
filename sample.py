@@ -424,7 +424,7 @@ class GeneticCube:
     results["final H"] = best_cube.getH()
     return results
   
-def run_algorithm(algorithm, argv) :
+def run_algorithm(algorithm, argv = []) :
   cube = Cube(5)
   
   start_time = time.time()
@@ -456,8 +456,5 @@ def run_algorithm(algorithm, argv) :
     result["duration"] = time.time() - start_time
   return result
 
-result = run_algorithm("genetic algorithm")
-
-text_file = open("output.txt", "w")
-text_file.write(json.dumps(result))
-text_file.close()
+result = run_algorithm("steepest ascent")
+print(result["final H"])
