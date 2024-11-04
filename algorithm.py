@@ -249,14 +249,14 @@ class GeneticCube:
     results["max_cubes"] = [] 
 
     max_cube = self.pop_max()
-    results["max_cubes"].append(max_cube)
+    results["max_cubes"].append(max_cube.cube)
     results["max_h"].append(max_cube.controlH())
     results["avg_h"].append(self.pop_h_avg())
 
     for i in range(iterationCount) :
 
       max_cube = self.pop_max()
-      results["max_cubes"].append(max_cube)
+      results["max_cubes"].append(max_cube.cube)
       results["max_h"].append(max_cube.controlH())
       results["avg_h"].append(self.pop_h_avg())
 

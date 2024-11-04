@@ -1,6 +1,7 @@
 import algorithm
 from beta import *
 from plotly.offline import plot
+from plotly.subplots import make_subplots
 
 def resultToStates(config) :
     currState = np.array(config["initial_state"])
@@ -24,8 +25,8 @@ def mainDihitungDulu(algo, argv = {}):
     else :
         cube_states = np.array(result["max_cubes"])
         
-    visualizer = CubeVisualizer(cube_states)
-    visualizer.fig.show()
+    # visualizer = CubeVisualizer(cube_states)
+    # visualizer.fig.show()
 
     if algo != "genetic algorithm" :
         objective_value = result["h_values"]
@@ -39,17 +40,26 @@ def mainDihitungDulu(algo, argv = {}):
     else :
         max_objective_value = result["max_h"]
         avg_objective_value = result["avg_h"]
-        line_fig1 = go.Figure()
+        line_fig1 = make_subplots(specs=[[{"secondary_y": True}]])
 
-        line_fig1.add_trace(go.Scatter(x=list(range(len(max_objective_value))), y=max_objective_value, mode='lines+markers', name='Max Objective Value'), secondary_y=False,)
-
-        line_fig1.add_trace(go.Scatter(x=list(range(len(avg_objective_value))), y=avg_objective_value, mode='lines+markers', name='Avg Objective Value'), secondary_y=True,
+        line_fig1.add_trace(
+            go.Scatter(x=list(range(len(max_objective_value))), y=max_objective_value, mode='lines+markers', name='Max Objective Value'),
+            secondary_y=False,
         )
-       
-        line_fig1.update_layout(title='Objective Value with respect to Iteration Number',
-                                xaxis_title='Iteration Number',
-                                yaxis_title='Objective Value')
 
+        line_fig1.add_trace(
+            go.Scatter(x=list(range(len(avg_objective_value))), y=avg_objective_value, mode='lines+markers', name='Avg Objective Value'),
+            secondary_y=True,
+        )
+
+        line_fig1.update_layout(
+            title='Objective Value with respect to Iteration Number',
+            xaxis_title='Iteration Number',
+            yaxis_title='Max Objective Value',
+            yaxis2_title='Avg Objective Value',  # Title for the secondary y-axis
+        )
+
+        # Plot the figure
         plot(line_fig1, filename='objective_value_plot.html', auto_open=True)
 
     if algo == "simulated annealing":
