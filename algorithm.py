@@ -278,7 +278,7 @@ class GeneticCube:
 
     best_cube = max(self.population, key=lambda cube: cube.getH())
     results["final_state"] = best_cube.cube
-    results["final H"] = best_cube.getH()
+    results["final H"] = best_cube.controlH()
     results["control H"] = best_cube.controlH()
     return results
   

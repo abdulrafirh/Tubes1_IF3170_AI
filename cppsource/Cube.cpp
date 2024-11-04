@@ -327,6 +327,7 @@ public:
         result["iteration_per_restarts"] = std::vector<int>();
         int iteration = 0;
         double maxH = 0;
+        Cube final_cube = Cube(5);
 
         auto& iteration_per_restarts = std::any_cast<std::vector<int>&>(result["iteration_per_restarts"]);
 
@@ -342,11 +343,13 @@ public:
                 result["switches"] = currResult["switches"];
                 result["h_values"] = currResult["h_values"];
                 maxH = currentH;
+                final_cube = copyCube(*this);
             }
             iteration++;
         }
 
         result["restart_counts"] = iteration;
+        *this = final_cube;
         return result;
     }
 
@@ -394,7 +397,7 @@ public:
     }
 
     double getTemperature(int iteration) const {
-        return 200 * std::pow(iteration, -0.5) - 8;
+        return 400 * std::pow(iteration, -0.5) - 8;
     }
 
     double getProbability(double deltaE, double temp) const {
