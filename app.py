@@ -51,6 +51,7 @@ print("3. Random Restart Hill Climb")
 print("4. Stochastic Hill Climbing")
 print("5. Simulated Annealing")
 print("6. Genetic Algorithm")
+print("7. Die")
 alg = int(input("=> "))
 
 while True:
@@ -72,8 +73,10 @@ while True:
         population_size = int(input("Population Size => "))
         iteration_max = int(input("Maximum Iteration => "))
         output = mainDihitungDulu("genetic algorithm",{"popSize": population_size, "max_iteration": iteration_max})
+    elif(alg==7):
+        exit()
     else:
-        print("Invalid input, Exiting Program..")
+        print("Invalid input, so i will die")
         break
     print("\n\n========================== Choose your algorithm ==========================")
     print("Choose your algorithm:")
@@ -83,4 +86,5 @@ while True:
     print("4. Stochastic Hill Climbing")
     print("5. Simulated Annealing")
     print("6. Genetic Algorithm")
+    print("7. Die")
     alg = int(input("=> "))
