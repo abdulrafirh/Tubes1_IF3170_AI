@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}.exe",
-            "args": ["simulated annealing"],
+            "args": ["random restart", "--max_restart", "2"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

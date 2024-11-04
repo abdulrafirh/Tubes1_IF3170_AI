@@ -325,7 +325,7 @@ public:
     std::unordered_map<std::string, std::any> randomRestartHillClimb(int max_restart = 10) {
         std::unordered_map<std::string, std::any> result;
         result["iteration_per_restarts"] = std::vector<int>();
-        int iteration = 1;
+        int iteration = 0;
         double maxH = 0;
 
         auto& iteration_per_restarts = std::any_cast<std::vector<int>&>(result["iteration_per_restarts"]);
@@ -540,7 +540,7 @@ void printResult(const std::unordered_map<std::string, std::any>& result) {
     jsonResult["duration"] = std::any_cast<double>(result.at("duration"));
 
     if (result.find("iteration_per_restarts") != result.end()) {
-        jsonResult["iteration_per_restarts"] = std::any_cast<int>(result.at("iteration_per_restarts"));
+        jsonResult["iteration_per_restarts"] = std::any_cast<std::vector<int>>(result.at("iteration_per_restarts"));
     }
     if (result.find("restart_counts") != result.end()) {
         jsonResult["restart_counts"] = std::any_cast<int>(result.at("restart_counts"));
