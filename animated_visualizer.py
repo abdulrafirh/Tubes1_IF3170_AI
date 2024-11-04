@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 from collections import defaultdict
 import random
 
+# Nge load data dari file txt
 def loadData(data_source):
     if isinstance(data_source, str):
         with open(data_source, 'r') as file:
@@ -18,36 +19,46 @@ def loadData(data_source):
     
     return np.array(numbers).reshape((5, 5, 5))
 
+# Ngecek array itu magic sum ga? (315)
 def isMagicSum(arr):
     return np.sum(arr) == 315
 
+#  Ngecek Magic sum dari segala arah
 def findMagicCoordinates(cube_data):
     magic_coords = defaultdict(int)
 
     for i in range(5):
         for j in range(5):
+            # Sejajar sumbu Z
             if isMagicSum(cube_data[i, j, :]):
                 for k in range(5):
                     magic_coords[(i, j, k)] += 1
+            # Sejajar sumbu Y
             if isMagicSum(cube_data[i, :, j]):
                 for k in range(5):
                     magic_coords[(i, k, j)] += 1
+            # Sejajar sumbu X
             if isMagicSum(cube_data[:, i, j]):
                 for k in range(5):
                     magic_coords[(k, i, j)] += 1
-
+        
+        # Bidang XY untuk tiap level Z
         if isMagicSum(cube_data[i, range(5), range(5)]):
             for k in range(5):
                 magic_coords[(i, k, k)] += 1
         if isMagicSum(cube_data[i, range(5), range(4, -1, -1)]):
             for k in range(5):
                 magic_coords[(i, k, 4 - k)] += 1
+
+        # Bidang YZ untuk tiap level X
         if isMagicSum(cube_data[range(5), i, range(5)]):
             for k in range(5):
                 magic_coords[(k, i, k)] += 1
         if isMagicSum(cube_data[range(5), i, range(4, -1, -1)]):
             for k in range(5):
                 magic_coords[(k, i, 4 - k)] += 1
+
+        # Bidang XZ untuk tiap level Y
         if isMagicSum(cube_data[range(5), range(5), i]):
             for k in range(5):
                 magic_coords[(k, k, i)] += 1
@@ -55,6 +66,7 @@ def findMagicCoordinates(cube_data):
             for k in range(5):
                 magic_coords[(k, 4 - k, i)] += 1
 
+    # Diagonal Ruang
     if isMagicSum(cube_data[range(5), range(5), range(5)]):
         for k in range(5):
             magic_coords[(k, k, k)] += 1
@@ -70,14 +82,15 @@ def findMagicCoordinates(cube_data):
 
     return magic_coords
 
+
 class CubeVisualizer:
     def __init__(self, initial_cube_data):
         self.cube_data = initial_cube_data.copy()
         self.explosion_factor = 1.2
         self.gap = 2
         self.color_map = {
-            0: '#F0F0F0', 1: '#A9A9A9', 2: '#B5B5B5', 3: '#98D7FF', 
-            4: '#74EDDD', 5: '#5DFC8C', 6: '#DEFD6F', 7: '#F5F828', 8: '#FFB829', 9 : '#FF9368', 10: '#FF8888', 11: '#FF1E1E', 12: '#871010', 13: '#871010', 14: '#871010', 15: '#871010', 16: '#871010'
+            0: '#DCDCDC', 1: '#AFEBFF', 2: '#99BBFF', 3: '#3A41D4', 
+            4: '#ACF1C5', 5: '#1CC198', 6: '#5FCB66', 7: '#287417', 8: '#FFFA92', 9 : '#FFDC50', 10: '#FFDC9F', 11: '#FFAC06', 12: '#FFB492', 13: '#FF6D68', 14: '#FF0900', 15: '#9F120D', 16: '#440402'
         }
         self.fig = go.Figure()
         self.setup_figure()
@@ -108,7 +121,7 @@ class CubeVisualizer:
                         alphahull=0,
                         flatshading=True,
                         hoverinfo='text',
-                        text=f"Value: {self.cube_data[i, j, k]}"
+                        text=f"Value: {self.cube_data[i, j, k]} \n Matches: {match_count}"
                     ))
                     
                     traces.append(go.Scatter3d(
